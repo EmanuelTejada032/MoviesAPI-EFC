@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.Entities;
 
@@ -12,6 +13,11 @@ namespace MoviesAPI_EFC
             CreateMap<GenreCreateReqDTO, Genre>();
             CreateMap<GenreUpdateReqDTO, Genre>()
                 .ForMember(src => src.Id, opt => opt.Ignore());
+
+
+
+            CreateMap<Actor, ActorListItemResponseDTO>();
+            CreateMap<ActorCreateReqDTO, Actor>();
         }
     }
 }
