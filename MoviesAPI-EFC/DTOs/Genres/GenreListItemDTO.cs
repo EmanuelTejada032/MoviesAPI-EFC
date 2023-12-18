@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MoviesAPI_EFC.DTOs
+namespace MoviesAPI_EFC.DTOs.Genres
 {
     public class GenreListItemDTO
     {

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MoviesAPI_EFC.DTOs;
+using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.Entities;
 
 namespace MoviesAPI_EFC
@@ -9,6 +9,9 @@ namespace MoviesAPI_EFC
         public AutoMapperProfile()
         {
             CreateMap<Genre, GenreListItemDTO>();
+            CreateMap<GenreCreateReqDTO, Genre>();
+            CreateMap<GenreUpdateReqDTO, Genre>()
+                .ForMember(src => src.Id, opt => opt.Ignore());
         }
     }
 }
