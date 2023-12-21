@@ -9,6 +9,6 @@ namespace MoviesAPI_EFC.Entities
         [StringLength(120)]
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
-        public string profilepicture { get; set; }
+        public string? profilepicture { get; set; }
     }
 }

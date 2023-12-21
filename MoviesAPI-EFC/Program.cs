@@ -1,6 +1,8 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC;
+using MoviesAPI_EFC.Services.Contract;
+using MoviesAPI_EFC.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,8 @@ builder.Services.AddScoped(provider =>
 
     return mConfig.CreateMapper();
 });
+
+builder.Services.AddTransient<IFileManager, FileManagerService>();
 
 var app = builder.Build();
 

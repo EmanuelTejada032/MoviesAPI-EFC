@@ -17,7 +17,12 @@ namespace MoviesAPI_EFC
 
 
             CreateMap<Actor, ActorListItemResponseDTO>();
-            CreateMap<ActorCreateReqDTO, Actor>();
+            CreateMap<ActorCreateReqDTO, Actor>()
+                .ForMember(src => src.profilepicture, opt => opt.Ignore());
+
+            CreateMap<ActorUpdateReqDTO, Actor>()
+               .ForMember(src => src.profilepicture, opt => opt.Ignore());
+
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.Entities;
+using MoviesAPI_EFC.Services.Contract;
 
 namespace MoviesAPI_EFC.Controllers
 {
@@ -13,11 +14,15 @@ namespace MoviesAPI_EFC.Controllers
     {
         private readonly ApplicationDbContext _moviesDbContext;
         private readonly IMapper _mapper;
+        private readonly IFileManager _fileManagerService;
+        private readonly string CONTAINER = "actors";
 
-        public ActorsController(ApplicationDbContext moviesDbContext, IMapper mapper)
+        public ActorsController(ApplicationDbContext moviesDbContext, IMapper mapper, IFileManager fileManagerService)
         {
             _moviesDbContext = moviesDbContext;
-            _mapper = mapper;
+            _mapper = mapper; 
+            _fileManagerService = fileManagerService;
+
         }
 
 
@@ -35,6 +40,79 @@ namespace MoviesAPI_EFC.Controllers
             return Ok(actor);
         }
 
-       
+        [HttpPost]
+        public async Task<IActionResult> Post([FromForm] ActorCreateReqDTO actorCreateReqDTO)
+        {
+            Actor actor = _mapper.Map<Actor>(actorCreateReqDTO); 
+            if(actorCreateReqDTO.profilepicture != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await actorCreateReqDTO.profilepicture.CopyToAsync(memoryStream);
+                    var content = memoryStream.ToArray();
+                    var extension = Path.GetExtension(actorCreateReqDTO.profilepicture.FileName);
+                    actor.profilepicture = await _fileManagerService.UploadFile(content, extension, CONTAINER, actorCreateReqDTO.profilepicture.ContentType);
+                }
+            }
+
+            _moviesDbContext.AddAsync(actor);
+            await _moviesDbContext.SaveChangesAsync();
+
+            return Ok(_mapper.Map<ActorListItemResponseDTO>(actor));
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put(int id , [FromForm] ActorUpdateReqDTO actorUpdateReqDTO)
+        {
+
+            Actor actorInDB = await _moviesDbContext.Actors.Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (actorInDB == default) return NotFound("Resource not found");
+
+            if (actorUpdateReqDTO.profilepicture != default)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await actorUpdateReqDTO.profilepicture.CopyToAsync(memoryStream);
+                    var content = memoryStream.ToArray();
+                    var extension = Path.GetExtension(actorUpdateReqDTO.profilepicture.FileName);
+
+                    if(actorInDB != null)
+                    {
+                        actorInDB.profilepicture = await _fileManagerService.EditFile(content, extension, CONTAINER, actorUpdateReqDTO.profilepicture.ContentType, actorInDB.profilepicture);
+                    }
+                    else
+                    {
+                        actorInDB.profilepicture = await _fileManagerService.UploadFile(content, extension, CONTAINER, actorUpdateReqDTO.profilepicture.ContentType);
+                    }
+                }
+            }
+
+            _mapper.Map(actorUpdateReqDTO, actorInDB);
+            await _moviesDbContext.SaveChangesAsync();
+
+            return Ok(_mapper.Map<ActorListItemResponseDTO>(actorInDB));
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            Actor actor = await _moviesDbContext.Actors.Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (actor == default) return NotFound("Resource not found");
+
+            var profilePicture = actor.profilepicture;
+
+            _moviesDbContext.Remove(actor);
+            await _moviesDbContext.SaveChangesAsync();
+
+            if(profilePicture != null)
+            {
+                await _fileManagerService.DeleteFile(profilePicture, CONTAINER);
+            }
+
+
+            return Ok();
+        }
+
+
     }
 }

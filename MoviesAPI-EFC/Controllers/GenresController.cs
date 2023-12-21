@@ -37,9 +37,9 @@ namespace MoviesAPI_EFC.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] GenreCreateReqDTO genreCreateReqDTO )
         {
-           var genreInDB = await _moviesDbContext.Genres.AddAsync(_mapper.Map<Genre>(genreCreateReqDTO));
+           var genre = await _moviesDbContext.Genres.AddAsync(_mapper.Map<Genre>(genreCreateReqDTO));
             await _moviesDbContext.SaveChangesAsync();    
-            return StatusCode(201, _mapper.Map<GenreListItemDTO>(genreInDB.Entity));
+            return StatusCode(201, _mapper.Map<GenreListItemDTO>(genre.Entity));
         }
 
         [HttpPut("{id:int}")]
