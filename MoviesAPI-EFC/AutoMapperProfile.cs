@@ -23,6 +23,8 @@ namespace MoviesAPI_EFC
             CreateMap<ActorUpdateReqDTO, Actor>()
                .ForMember(src => src.profilepicture, opt => opt.Ignore());
 
+            CreateMap<ActorPatchDTO, Actor>().ReverseMap();
+
         }
     }
 }

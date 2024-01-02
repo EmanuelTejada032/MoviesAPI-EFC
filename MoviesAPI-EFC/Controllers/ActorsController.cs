@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.Entities;
 using MoviesAPI_EFC.Services.Contract;
+using System.Runtime.CompilerServices;
 
 namespace MoviesAPI_EFC.Controllers
 {
@@ -109,6 +112,29 @@ namespace MoviesAPI_EFC.Controllers
                 await _fileManagerService.DeleteFile(profilePicture, CONTAINER);
             }
 
+
+            return Ok();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<IActionResult> Patch(int id , [FromBody] JsonPatchDocument<ActorPatchDTO> actorPatchData )
+        {
+            if (actorPatchData == default) return BadRequest();
+
+            var ActorInDB = await _moviesDbContext.Actors.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            if(ActorInDB == default) return NotFound("Resource not found");
+
+            var actorPatchDTO = _mapper.Map<ActorPatchDTO>(ActorInDB);
+
+            actorPatchData.ApplyTo(actorPatchDTO, ModelState);
+
+            var isValid = TryValidateModel(actorPatchData);
+
+            if (!isValid) return BadRequest(ModelState);
+
+            _mapper.Map(actorPatchDTO, ActorInDB);
+            await _moviesDbContext.SaveChangesAsync();
 
             return Ok();
         }
