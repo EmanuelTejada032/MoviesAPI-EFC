@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.Actors;
+using MoviesAPI_EFC.DTOs.General;
 using MoviesAPI_EFC.Entities;
+using MoviesAPI_EFC.Extensions;
 using MoviesAPI_EFC.Services.Contract;
 using System.Runtime.CompilerServices;
 
@@ -30,9 +32,14 @@ namespace MoviesAPI_EFC.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] PaginationData paginationData)
         {
-            return Ok( await _moviesDbContext.Actors.ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider).ToListAsync());
+            var actorsQueryable = _moviesDbContext.Actors.AsQueryable();
+
+            var paginatedActors = await _moviesDbContext.Actors.ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider)
+                .Paginate(paginationData).ToListAsync();
+
+            return Ok(paginatedActors);
         }
 
         [HttpGet("{id:int}")]
