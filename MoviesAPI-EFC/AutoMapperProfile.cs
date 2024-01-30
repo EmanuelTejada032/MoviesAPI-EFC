@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.Genres;
+using MoviesAPI_EFC.DTOs.Movies;
 using MoviesAPI_EFC.Entities;
 
 namespace MoviesAPI_EFC
@@ -24,6 +25,17 @@ namespace MoviesAPI_EFC
                .ForMember(src => src.profilepicture, opt => opt.Ignore());
 
             CreateMap<ActorPatchDTO, Actor>().ReverseMap();
+
+
+            CreateMap<Movie, MovieListItemResponseDTO>();
+
+            CreateMap<MovieCreateReqDTO, Movie>()
+               .ForMember(src => src.Poster, opt => opt.Ignore());
+
+            CreateMap<MovieUpdateRequestDTO, Movie>()
+               .ForMember(src => src.Poster, opt => opt.Ignore());
+
+            CreateMap<MoviePatchDTO, Movie>().ReverseMap();
 
         }
     }
