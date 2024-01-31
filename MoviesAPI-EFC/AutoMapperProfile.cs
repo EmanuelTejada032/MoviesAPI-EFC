@@ -13,7 +13,7 @@ namespace MoviesAPI_EFC
             CreateMap<Genre, GenreListItemDTO>();
             CreateMap<GenreCreateReqDTO, Genre>();
             CreateMap<GenreUpdateReqDTO, Genre>()
-                .ForMember(src => src.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
 
 
@@ -22,7 +22,7 @@ namespace MoviesAPI_EFC
                 .ForMember(src => src.profilepicture, opt => opt.Ignore());
 
             CreateMap<ActorUpdateReqDTO, Actor>()
-               .ForMember(src => src.profilepicture, opt => opt.Ignore());
+               .ForMember(dest => dest.profilepicture, opt => opt.Ignore());
 
             CreateMap<ActorPatchDTO, Actor>().ReverseMap();
 
@@ -30,13 +30,65 @@ namespace MoviesAPI_EFC
             CreateMap<Movie, MovieListItemResponseDTO>();
 
             CreateMap<MovieCreateReqDTO, Movie>()
-               .ForMember(src => src.Poster, opt => opt.Ignore());
+               .ForMember(dest => dest.Poster, opt => opt.Ignore())
+               .ForMember(dest => dest.MoviesGenres, opt => opt.MapFrom(MapMoviesGenres))
+               .ForMember(dest => dest.MoviesActors, opt => opt.MapFrom(MapMoviesActors));
 
             CreateMap<MovieUpdateRequestDTO, Movie>()
-               .ForMember(src => src.Poster, opt => opt.Ignore());
+               .ForMember(dest => dest.Poster, opt => opt.Ignore())
+               .ForMember(dest => dest.MoviesGenres, opt => opt.MapFrom(MapMoviesGenresUpdate))
+               .ForMember(dest => dest.MoviesActors, opt => opt.MapFrom(MapMoviesActorsUpdate));
 
             CreateMap<MoviePatchDTO, Movie>().ReverseMap();
 
+        }
+
+        public List<MoviesGenres> MapMoviesGenres(MovieCreateReqDTO movieCreateReqDTO, Movie movie)
+        {
+            var result = new List<MoviesGenres>();
+            if(movieCreateReqDTO.GenreIds == null) return result;
+            foreach (var genreId in movieCreateReqDTO.GenreIds)
+            {
+                result.Add(new MoviesGenres { GenreId = genreId });
+            }
+
+            return result;
+        }
+
+        public List<MoviesActors> MapMoviesActors(MovieCreateReqDTO movieCreateReqDTO, Movie movie)
+        {
+            var result = new List<MoviesActors>();
+            if (movieCreateReqDTO.MoviesActors == null) return result;
+            foreach (var movieActor in movieCreateReqDTO.MoviesActors)
+            {
+                result.Add(new MoviesActors { ActorId = movieActor.ActorId, Character = movieActor.Character, DisplayOrder = movieActor.DisplayOrder });
+            }
+
+            return result;
+        }
+
+        public List<MoviesGenres> MapMoviesGenresUpdate(MovieUpdateRequestDTO movieCreateReqDTO, Movie movie)
+        {
+            var result = new List<MoviesGenres>();
+            if(movieCreateReqDTO.GenreIds == null) return result;
+            foreach (var genreId in movieCreateReqDTO.GenreIds)
+            {
+                result.Add(new MoviesGenres { GenreId = genreId });
+            }
+
+            return result;
+        }
+
+        public List<MoviesActors> MapMoviesActorsUpdate(MovieUpdateRequestDTO movieCreateReqDTO, Movie movie)
+        {
+            var result = new List<MoviesActors>();
+            if (movieCreateReqDTO.MoviesActors == null) return result;
+            foreach (var movieActor in movieCreateReqDTO.MoviesActors)
+            {
+                result.Add(new MoviesActors { ActorId = movieActor.ActorId, Character = movieActor.Character, DisplayOrder = movieActor.DisplayOrder});
+            }
+
+            return result;
         }
     }
 }

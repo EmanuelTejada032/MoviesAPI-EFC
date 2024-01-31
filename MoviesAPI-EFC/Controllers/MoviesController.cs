@@ -76,7 +76,7 @@ namespace MoviesAPI_EFC.Controllers
         public async Task<IActionResult> Put(int id, [FromForm] MovieUpdateRequestDTO movieUpdateRequestDTO)
         {
 
-            Movie movieInDb = await _moviesDbContext.Movies.Where(x => x.Id == id).FirstOrDefaultAsync();
+            Movie movieInDb = await _moviesDbContext.Movies.Include(x => x.MoviesGenres).Include(x => x.MoviesActors).Where(x => x.Id == id).FirstOrDefaultAsync();
             if (movieInDb == default) return NotFound("Resource not found");
 
             if (movieUpdateRequestDTO.Poster!= default)
