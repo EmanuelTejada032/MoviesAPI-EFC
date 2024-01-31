@@ -13,5 +13,6 @@ namespace MoviesAPI_EFC.DTOs.Movies
         public DateTime Date { get; set; }
         [ValidateImage(size: 4)]
         public IFormFile Poster { get; set; }
+        public List<int> GenreIds { get; set; }
     }
 }

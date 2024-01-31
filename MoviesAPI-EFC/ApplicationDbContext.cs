@@ -10,8 +10,18 @@ namespace MoviesAPI_EFC
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MoviesGenres>().HasKey(x => new {x.MovieId, x.GenreId});
+            modelBuilder.Entity<MoviesActors>().HasKey(x => new { x.MovieId, x.ActorId });
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Actor> Actors { get; set; }
         public DbSet<Movie> Movies { get; set; }
+        public DbSet<MoviesGenres> MoviesGenres { get; set; }
+        public DbSet<MoviesActors> MoviesActors{ get; set; }
     }
 }
