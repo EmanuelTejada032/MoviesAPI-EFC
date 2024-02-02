@@ -72,7 +72,11 @@ namespace MoviesAPI_EFC.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var movie = await _moviesDbContext.Movies.Where(x => x.Id == id).ProjectTo<MovieListItemResponseDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+            var movie = await _moviesDbContext.Movies
+                .Include(x => x.MoviesGenres).ThenInclude(x => x.Genre)
+                .Include(x => x.MoviesActors).ThenInclude(x => x.Actor)
+                .Where(x => x.Id == id).ProjectTo<MovieDetailDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+
             if (movie == default) return NotFound("Resource not found");
             return Ok(movie);
         }

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace MoviesAPI_EFC.DTOs.Movies
 {
     public class MovieListItemResponseDTO

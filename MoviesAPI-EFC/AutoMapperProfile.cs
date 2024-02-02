@@ -29,6 +29,10 @@ namespace MoviesAPI_EFC
 
             CreateMap<Movie, MovieListItemResponseDTO>();
 
+            CreateMap<Movie, MovieDetailDTO>()
+            .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.MoviesGenres.Select( mg => new MoviesGenresRespDTO { Id = mg.GenreId, Name = mg.Genre.Name })))
+            .ForMember(dest => dest.Cast, opt => opt.MapFrom(src => src.MoviesActors.Select( ma => new MoviesActorsRespDTO { Id = ma.ActorId, Name = ma.Actor.Name, Character = ma.Character })));
+
             CreateMap<MovieCreateReqDTO, Movie>()
                .ForMember(dest => dest.Poster, opt => opt.Ignore())
                .ForMember(dest => dest.MoviesGenres, opt => opt.MapFrom(MapMoviesGenres))
@@ -43,18 +47,6 @@ namespace MoviesAPI_EFC
 
         }
 
-        public List<MoviesGenres> MapMoviesGenres(MovieCreateReqDTO movieCreateReqDTO, Movie movie)
-        {
-            var result = new List<MoviesGenres>();
-            if(movieCreateReqDTO.GenreIds == null) return result;
-            foreach (var genreId in movieCreateReqDTO.GenreIds)
-            {
-                result.Add(new MoviesGenres { GenreId = genreId });
-            }
-
-            return result;
-        }
-
         public List<MoviesActors> MapMoviesActors(MovieCreateReqDTO movieCreateReqDTO, Movie movie)
         {
             var result = new List<MoviesActors>();
@@ -62,6 +54,17 @@ namespace MoviesAPI_EFC
             foreach (var movieActor in movieCreateReqDTO.MoviesActors)
             {
                 result.Add(new MoviesActors { ActorId = movieActor.ActorId, Character = movieActor.Character, DisplayOrder = movieActor.DisplayOrder });
+            }
+
+            return result;
+        }
+        public List<MoviesActors> MapMoviesActorsUpdate(MovieUpdateRequestDTO movieCreateReqDTO, Movie movie)
+        {
+            var result = new List<MoviesActors>();
+            if (movieCreateReqDTO.MoviesActors == null) return result;
+            foreach (var movieActor in movieCreateReqDTO.MoviesActors)
+            {
+                result.Add(new MoviesActors { ActorId = movieActor.ActorId, Character = movieActor.Character, DisplayOrder = movieActor.DisplayOrder});
             }
 
             return result;
@@ -78,17 +81,17 @@ namespace MoviesAPI_EFC
 
             return result;
         }
-
-        public List<MoviesActors> MapMoviesActorsUpdate(MovieUpdateRequestDTO movieCreateReqDTO, Movie movie)
+        public List<MoviesGenres> MapMoviesGenres(MovieCreateReqDTO movieCreateReqDTO, Movie movie)
         {
-            var result = new List<MoviesActors>();
-            if (movieCreateReqDTO.MoviesActors == null) return result;
-            foreach (var movieActor in movieCreateReqDTO.MoviesActors)
+            var result = new List<MoviesGenres>();
+            if(movieCreateReqDTO.GenreIds == null) return result;
+            foreach (var genreId in movieCreateReqDTO.GenreIds)
             {
-                result.Add(new MoviesActors { ActorId = movieActor.ActorId, Character = movieActor.Character, DisplayOrder = movieActor.DisplayOrder});
+                result.Add(new MoviesGenres { GenreId = genreId });
             }
 
             return result;
         }
+
     }
 }
