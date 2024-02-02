@@ -12,6 +12,7 @@ using MoviesAPI_EFC.Migrations;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
 using System.ComponentModel;
+using System.Linq.Dynamic.Core;
 
 namespace MoviesAPI_EFC.Controllers
 {
@@ -22,23 +23,48 @@ namespace MoviesAPI_EFC.Controllers
         private readonly ApplicationDbContext _moviesDbContext;
         private readonly IMapper _mapper;
         private readonly IFileManager _fileManager;
+        private readonly ILogger<MoviesController> _logger;
         private readonly string _CONTAINER = "movies";
 
-        public MoviesController(ApplicationDbContext moviesDbContext ,IMapper mapper, IFileManager fileManager)
+        public MoviesController(ApplicationDbContext moviesDbContext ,IMapper mapper, IFileManager fileManager, ILogger<MoviesController> logger)
         {
             _moviesDbContext = moviesDbContext;
             _mapper = mapper;
             _fileManager = fileManager;
+            _logger = logger;
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery]PaginationData paginationData)
+        public async Task<IActionResult> Get([FromQuery] MoviesFilterDTO filterData)
         {
             var resourceQueryable = _moviesDbContext.Movies.AsQueryable();
 
+            if (!string.IsNullOrEmpty(filterData.Title))
+            {
+                resourceQueryable = resourceQueryable.Where(x => x.Title.Contains(filterData.Title));
+            }
+            
+            if(filterData.OnTheaters != null)
+            {
+                resourceQueryable = resourceQueryable.Where(x => x.OnTheaters == filterData.OnTheaters);
+            }
+
+            if (!string.IsNullOrEmpty(filterData.FieldToFilter))
+            {
+                var orderByValue = filterData.FilterDescending ? "descending" : "ascending";
+
+                try
+                {
+                    resourceQueryable = resourceQueryable.OrderBy($"{filterData.FieldToFilter} {orderByValue}");
+                }catch (Exception ex)
+                {
+                    _logger.LogCritical("Error when filtering dynamicly");
+                }
+            }
+
             var paginatedActors = await resourceQueryable.ProjectTo<MovieListItemResponseDTO>(_mapper.ConfigurationProvider)
-                .Paginate(paginationData).ToListAsync();
+                .Paginate(filterData).ToListAsync();
 
             return Ok(paginatedActors);
         }
