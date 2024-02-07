@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MoviesAPI_EFC.DTOs.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI_EFC.Entities
 {
-    public class Genre
+    public class Genre: IId
     {
         public int Id { get; set; }
 

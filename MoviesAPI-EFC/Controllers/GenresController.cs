@@ -9,12 +9,12 @@ namespace MoviesAPI_EFC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GenresController: ControllerBase
+    public class GenresController: CustomBaseController
     {
         private readonly ApplicationDbContext _moviesDbContext;
         private readonly IMapper _mapper;
 
-        public GenresController(ApplicationDbContext moviesDbContext, IMapper mapper)
+        public GenresController(ApplicationDbContext moviesDbContext, IMapper mapper): base(moviesDbContext, mapper)
         {
             _moviesDbContext = moviesDbContext;
             _mapper = mapper;
@@ -23,21 +23,19 @@ namespace MoviesAPI_EFC.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _moviesDbContext.Genres.ProjectTo<GenreListItemDTO>(_mapper.ConfigurationProvider).ToListAsync()); 
+            return Ok(await Get<Genre, GenreListItemDTO>()); 
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<GenreListItemDTO>> GetById(int id)
         {
-            GenreListItemDTO genre = await _moviesDbContext.Genres.Where(x => x.Id == id).ProjectTo<GenreListItemDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-            if(genre == default) return NotFound("Resource not found");
-            return Ok(genre);
+            return await Get<Genre, GenreListItemDTO>(id);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] GenreCreateReqDTO genreCreateReqDTO )
         {
-           var genre = await _moviesDbContext.Genres.AddAsync(_mapper.Map<Genre>(genreCreateReqDTO));
+            var genre = await _moviesDbContext.Genres.AddAsync(_mapper.Map<Genre>(genreCreateReqDTO));
             await _moviesDbContext.SaveChangesAsync();    
             return StatusCode(201, _mapper.Map<GenreListItemDTO>(genre.Entity));
         }

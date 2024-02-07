@@ -35,10 +35,8 @@ namespace MoviesAPI_EFC.Controllers
         public async Task<IActionResult> Get([FromQuery] PaginationData paginationData)
         {
             var actorsQueryable = _moviesDbContext.Actors.AsQueryable();
-
             var paginatedActors = await _moviesDbContext.Actors.ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider)
                 .Paginate(paginationData).ToListAsync();
-
             return Ok(paginatedActors);
         }
 
