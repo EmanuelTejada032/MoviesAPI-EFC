@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.Genres;
@@ -33,33 +32,21 @@ namespace MoviesAPI_EFC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] GenreCreateReqDTO genreCreateReqDTO )
+        public async Task<ActionResult<GenreListItemDTO>> Post([FromBody] GenreCreateReqDTO genreCreateReqDTO )
         {
-            var genre = await _moviesDbContext.Genres.AddAsync(_mapper.Map<Genre>(genreCreateReqDTO));
-            await _moviesDbContext.SaveChangesAsync();    
-            return StatusCode(201, _mapper.Map<GenreListItemDTO>(genre.Entity));
+            return await Post<Genre, GenreCreateReqDTO, GenreListItemDTO>(genreCreateReqDTO);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id ,[FromBody] GenreUpdateReqDTO genreUpdateReqDTO)
+        public async Task<ActionResult<GenreListItemDTO>> Put(int id ,[FromBody] GenreUpdateReqDTO genreUpdateReqDTO)
         {
-            var genreInDB = await _moviesDbContext.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
-            if (genreInDB == default) return NotFound("Resource not found");
-            _mapper.Map(genreUpdateReqDTO, genreInDB);
-            await _moviesDbContext.SaveChangesAsync();
-            return StatusCode(201, _mapper.Map<GenreListItemDTO>(genreInDB));
+            return await Put<Genre, GenreUpdateReqDTO, GenreListItemDTO>(id, genreUpdateReqDTO);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult<int>> Delete(int id)
         {
-            Genre genreInDB = await _moviesDbContext.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
-            if (genreInDB == default) return NotFound("Resource not found");
-
-            _moviesDbContext.Remove(genreInDB);
-            _moviesDbContext.SaveChangesAsync();
-
-            return Ok(id);
+            return await Delete<Genre>(id);
         }
     }
 }
