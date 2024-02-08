@@ -3,22 +3,17 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoviesAPI_EFC.DTOs.Actors;
-using MoviesAPI_EFC.DTOs.General;
 using MoviesAPI_EFC.DTOs.Movies;
 using MoviesAPI_EFC.Entities;
 using MoviesAPI_EFC.Extensions;
-using MoviesAPI_EFC.Migrations;
 using MoviesAPI_EFC.Services.Contract;
-using MoviesAPI_EFC.Services.Implementation;
-using System.ComponentModel;
 using System.Linq.Dynamic.Core;
 
 namespace MoviesAPI_EFC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class MoviesController: ControllerBase
+    public class MoviesController: CustomBaseController
     {
         private readonly ApplicationDbContext _moviesDbContext;
         private readonly IMapper _mapper;
@@ -156,24 +151,7 @@ namespace MoviesAPI_EFC.Controllers
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id, [FromBody] JsonPatchDocument<MoviePatchDTO> jsonPatchDocumentMoviePatchDTO)
         {
-            if (jsonPatchDocumentMoviePatchDTO == default) return BadRequest();
-
-            var movieinDb = await _moviesDbContext.Movies.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-            if (movieinDb == default) return NotFound("Resource not found");
-
-            var moviePatchDTO = _mapper.Map<MoviePatchDTO>(movieinDb);
-
-            jsonPatchDocumentMoviePatchDTO.ApplyTo(moviePatchDTO, ModelState);
-
-            var isValid = TryValidateModel(jsonPatchDocumentMoviePatchDTO);
-
-            if (!isValid) return BadRequest(ModelState);
-
-            _mapper.Map(moviePatchDTO, movieinDb);
-            await _moviesDbContext.SaveChangesAsync();
-
-            return Ok();
+            return await Patch<Movie, MoviePatchDTO>(id, jsonPatchDocumentMoviePatchDTO);
         }
     }
 }

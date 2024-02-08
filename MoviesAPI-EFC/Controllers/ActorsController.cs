@@ -15,14 +15,14 @@ namespace MoviesAPI_EFC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ActorsController : ControllerBase
+    public class ActorsController : CustomBaseController
     {
         private readonly ApplicationDbContext _moviesDbContext;
         private readonly IMapper _mapper;
         private readonly IFileManager _fileManagerService;
         private readonly string CONTAINER = "actors";
 
-        public ActorsController(ApplicationDbContext moviesDbContext, IMapper mapper, IFileManager fileManagerService)
+        public ActorsController(ApplicationDbContext moviesDbContext, IMapper mapper, IFileManager fileManagerService): base(moviesDbContext, mapper)
         {
             _moviesDbContext = moviesDbContext;
             _mapper = mapper; 
@@ -32,20 +32,15 @@ namespace MoviesAPI_EFC.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] PaginationData paginationData)
+        public async Task<ActionResult<List<ActorListItemResponseDTO>>> Get([FromQuery] PaginationData paginationData)
         {
-            var actorsQueryable = _moviesDbContext.Actors.AsQueryable();
-            var paginatedActors = await _moviesDbContext.Actors.ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider)
-                .Paginate(paginationData).ToListAsync();
-            return Ok(paginatedActors);
+            return await Get<Actor, ActorListItemResponseDTO>(paginationData);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id)
         {
-            ActorListItemResponseDTO actor = await _moviesDbContext.Actors.Where(x => x.Id == id).ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-            if (actor == default) return NotFound("Resource not found");
-            return Ok(actor);
+           return await Get<Actor, ActorListItemResponseDTO>(id);
         }
 
         [HttpPost]
@@ -124,24 +119,7 @@ namespace MoviesAPI_EFC.Controllers
         [HttpPatch("{id:int}")]
         public async Task<IActionResult> Patch(int id , [FromBody] JsonPatchDocument<ActorPatchDTO> actorPatchData )
         {
-            if (actorPatchData == default) return BadRequest();
-
-            var ActorInDB = await _moviesDbContext.Actors.Where(x => x.Id == id).FirstOrDefaultAsync();
-
-            if(ActorInDB == default) return NotFound("Resource not found");
-
-            var actorPatchDTO = _mapper.Map<ActorPatchDTO>(ActorInDB);
-
-            actorPatchData.ApplyTo(actorPatchDTO, ModelState);
-
-            var isValid = TryValidateModel(actorPatchData);
-
-            if (!isValid) return BadRequest(ModelState);
-
-            _mapper.Map(actorPatchDTO, ActorInDB);
-            await _moviesDbContext.SaveChangesAsync();
-
-            return Ok();
+           return  await Patch<Actor, ActorPatchDTO>(id, actorPatchData);
         }
 
 
