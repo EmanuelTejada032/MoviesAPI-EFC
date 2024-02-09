@@ -21,7 +21,7 @@ namespace MoviesAPI_EFC.Controllers
         private readonly ILogger<MoviesController> _logger;
         private readonly string _CONTAINER = "movies";
 
-        public MoviesController(ApplicationDbContext moviesDbContext ,IMapper mapper, IFileManager fileManager, ILogger<MoviesController> logger)
+        public MoviesController(ApplicationDbContext moviesDbContext ,IMapper mapper, IFileManager fileManager, ILogger<MoviesController> logger): base (moviesDbContext, mapper)
         {
             _moviesDbContext = moviesDbContext;
             _mapper = mapper;

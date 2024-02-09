@@ -2,6 +2,7 @@
 using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.DTOs.Movies;
+using MoviesAPI_EFC.DTOs.MovieTheater;
 using MoviesAPI_EFC.Entities;
 
 namespace MoviesAPI_EFC
@@ -15,6 +16,11 @@ namespace MoviesAPI_EFC
             CreateMap<GenreUpdateReqDTO, Genre>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
+
+            CreateMap<MovieTheater, MovieTheaterListItemResDTO>();
+            CreateMap<MovieTheaterCreateReqDTO, MovieTheater>();
+            CreateMap<MovieTheaterUpdateReqDTO, MovieTheater>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
 
 
             CreateMap<Actor, ActorListItemResponseDTO>();
