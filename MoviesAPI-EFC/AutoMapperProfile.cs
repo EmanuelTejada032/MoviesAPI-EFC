@@ -4,12 +4,13 @@ using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.DTOs.Movies;
 using MoviesAPI_EFC.DTOs.MovieTheater;
 using MoviesAPI_EFC.Entities;
+using NetTopologySuite.Geometries;
 
 namespace MoviesAPI_EFC
 {
     public class AutoMapperProfile : Profile
     {
-        public AutoMapperProfile()
+        public AutoMapperProfile(GeometryFactory geometryFactory)
         {
             CreateMap<Genre, GenreListItemDTO>();
             CreateMap<GenreCreateReqDTO, Genre>();
@@ -17,9 +18,15 @@ namespace MoviesAPI_EFC
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
 
-            CreateMap<MovieTheater, MovieTheaterListItemResDTO>();
-            CreateMap<MovieTheaterCreateReqDTO, MovieTheater>();
+            CreateMap<MovieTheater, MovieTheaterListItemResDTO>()
+                .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Location.Y))
+                .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Location.X));
+
+            CreateMap<MovieTheaterCreateReqDTO, MovieTheater>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => geometryFactory.CreatePoint(new Coordinate(src.Longitude, src.Latitude))));
+
             CreateMap<MovieTheaterUpdateReqDTO, MovieTheater>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => geometryFactory.CreatePoint(new Coordinate(src.Longitude, src.Latitude))))
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
 

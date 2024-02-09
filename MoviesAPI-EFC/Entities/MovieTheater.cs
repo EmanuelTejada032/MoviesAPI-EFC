@@ -1,4 +1,5 @@
 ﻿using MoviesAPI_EFC.DTOs.Interfaces;
+using NetTopologySuite.Geometries;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI_EFC.Entities
@@ -10,6 +11,7 @@ namespace MoviesAPI_EFC.Entities
         [Required]
         [StringLength(120)]
         public string Name { get; set; }
+        public Point Location { get; set; }
         public List<MovieTheaterMovie> MovieTheaterMovies { get; set; }
     }
 }

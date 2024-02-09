@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,13 +12,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"),
+    sqlServerOptions => sqlServerOptions.UseNetTopologySuite()
+));
 
-builder.Services.AddScoped(provider =>
+builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid:4326));
+
+builder.Services.AddSingleton(provider =>
 {
     var mConfig = new MapperConfiguration(conf =>
     {
-        conf.AddProfile(new AutoMapperProfile());
+        var geometryFactory = provider.GetRequiredService<GeometryFactory>();   
+        conf.AddProfile(new AutoMapperProfile(geometryFactory));
     });
 
     return mConfig.CreateMapper();
