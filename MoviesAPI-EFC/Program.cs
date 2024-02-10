@@ -1,13 +1,19 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MoviesAPI_EFC;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Add services to the container.
 
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -18,6 +24,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 ));
 
 builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid:4326));
+builder.Services.AddSingleton<HashService>();
 
 builder.Services.AddSingleton(provider =>
 {
@@ -28,6 +35,28 @@ builder.Services.AddSingleton(provider =>
     });
 
     return mConfig.CreateMapper();
+});
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwtkey"])),
+                    ClockSkew = TimeSpan.Zero
+                });
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsAdmin", policy => policy.RequireClaim("isAdmin"));
 });
 
 builder.Services.AddTransient<IFileManager, FileManagerService>();
