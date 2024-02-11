@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.General;
 using MoviesAPI_EFC.DTOs.Review;
 using MoviesAPI_EFC.Entities;
-using System.Security.Claims;
+using MoviesAPI_EFC.Helpers;
 
 namespace MoviesAPI_EFC.Controllers
 {
     [ApiController]
     [Route("api/movies/{movieId:int}/reviews")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ServiceFilter(typeof(MovieExistAttribute))]
     public class ReviewController : CustomBaseController
     {
         private readonly ApplicationDbContext _applicationDbContext;
@@ -28,9 +29,6 @@ namespace MoviesAPI_EFC.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<ReviewListItemDTO>>> Get(int movieId, [FromQuery]PaginationData paginationData) 
         {
-            Movie movie = await _applicationDbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-
-            if (movie == default) return NotFound("Movie not found");
             var reviewsQueryable = _applicationDbContext.Reviews.Include(x => x.User).AsQueryable();
             reviewsQueryable.Where(x => x.MovieId == movieId);
             return await Get<Review, ReviewListItemDTO>(paginationData, reviewsQueryable);
@@ -39,10 +37,6 @@ namespace MoviesAPI_EFC.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(int movieId, ReviewCreateReqDTO reviewCreateReqDTO )
         {
-            Movie movie = await _applicationDbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-
-            if (movie == default) return NotFound("Movie not found");
-
             var userid = HttpContext.User.Claims.FirstOrDefault(x => x.Type == "userid").Value;
             var reviewExist = await _applicationDbContext.Reviews.AnyAsync(x => x.MovieId == movieId && x.UserId == userid);
 
@@ -61,9 +55,6 @@ namespace MoviesAPI_EFC.Controllers
         [HttpPut("{reviewId:int}")]
         public async Task<IActionResult> Put(int movieId, int reviewId, ReviewUpdateReqDTO reviewUpdateReqDTO)
         {
-            Movie movie = await _applicationDbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-            if (movie == default) return NotFound("Movie not found");
-
             Review review = await _applicationDbContext.Reviews.FirstOrDefaultAsync(x => x.MovieId == movieId && x.Id == reviewId);
             if (review == default) return NotFound("Review not found");
 
@@ -80,9 +71,6 @@ namespace MoviesAPI_EFC.Controllers
         [HttpDelete("{reviewId:int}")]
         public async Task<ActionResult<int>> Delete(int movieId, int reviewId)
         {
-            Movie movie = await _applicationDbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
-            if (movie == default) return NotFound("Movie not found");
-
             Review review = await _applicationDbContext.Reviews.FirstOrDefaultAsync(x => x.MovieId == movieId && x.Id == reviewId);
             if (review == default) return NotFound("Review not found");
 

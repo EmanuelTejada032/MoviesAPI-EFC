@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoviesAPI_EFC;
+using MoviesAPI_EFC.Helpers;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
 using NetTopologySuite;
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid:4326));
 builder.Services.AddSingleton<HashService>();
+builder.Services.AddScoped<MovieExistAttribute>();
 
 builder.Services.AddSingleton(provider =>
 {
