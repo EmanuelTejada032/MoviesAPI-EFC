@@ -115,6 +115,8 @@ namespace MoviesAPI_EFC.Controllers
             var claimsFromDB = await _userManager.GetClaimsAsync(user);
             claims.AddRange(claimsFromDB);
 
+            claims.Add(new Claim ("userid", user.Id));
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwtkey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

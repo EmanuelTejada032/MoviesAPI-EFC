@@ -52,23 +52,13 @@ namespace MoviesAPI_EFC.Controllers
         public async Task<ActionResult<MovieTheaterListItemResDTO>> Get(int id) => await Get<MovieTheater, MovieTheaterListItemResDTO>(id);
 
         [HttpPost]
-        public async Task<ActionResult<MovieTheaterListItemResDTO>> Post([FromBody] MovieTheaterCreateReqDTO movieTheaterCreateResDTO)
-        {
-            return await Post<MovieTheater, MovieTheaterCreateReqDTO, MovieTheaterListItemResDTO>(movieTheaterCreateResDTO);
-        }
+        public async Task<ActionResult<MovieTheaterListItemResDTO>> Post([FromBody] MovieTheaterCreateReqDTO movieTheaterCreateResDTO) => await Post<MovieTheater, MovieTheaterCreateReqDTO, MovieTheaterListItemResDTO>(movieTheaterCreateResDTO);
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<MovieTheaterListItemResDTO>> Put(int id , [FromBody] MovieTheaterUpdateReqDTO movieTheaterUpdateReqDTO)
-        {
-            return await Put<MovieTheater, MovieTheaterUpdateReqDTO, MovieTheaterListItemResDTO>(id, movieTheaterUpdateReqDTO);
-        }
+        public async Task<ActionResult<MovieTheaterListItemResDTO>> Put(int id , [FromBody] MovieTheaterUpdateReqDTO movieTheaterUpdateReqDTO) => await Put<MovieTheater, MovieTheaterUpdateReqDTO, MovieTheaterListItemResDTO>(id, movieTheaterUpdateReqDTO);
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<int>> Delete(int id)
-        {
-            return await Delete<MovieTheater>(id);
-        }
-
+        public async Task<ActionResult<int>> Delete(int id) => await Delete<MovieTheater>(id);
 
     }
 }

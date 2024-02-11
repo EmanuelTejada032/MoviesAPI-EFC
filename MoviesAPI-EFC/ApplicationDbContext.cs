@@ -27,5 +27,6 @@ namespace MoviesAPI_EFC
         public DbSet<MoviesActors> MoviesActors{ get; set; }
         public DbSet<MovieTheater> MovieTheaters{ get; set; }
         public DbSet<MovieTheaterMovie> MovieTheaterMovies{ get; set; }
+        public DbSet<Review> Reviews { get; set; }
     }
 }

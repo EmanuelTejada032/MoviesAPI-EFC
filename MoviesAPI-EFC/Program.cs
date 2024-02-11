@@ -13,7 +13,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Add services to the container.
 
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -59,6 +58,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("IsAdmin", policy => policy.RequireClaim("isAdmin"));
 });
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 builder.Services.AddTransient<IFileManager, FileManagerService>();
 
 var app = builder.Build();

@@ -15,6 +15,5 @@ namespace MoviesAPI_EFC.Entities
         public List<MoviesActors> MoviesActors { get; set; }
         public List<MoviesGenres> MoviesGenres { get; set;}
         public List<MovieTheaterMovie> MovieTheaterMovies { get; set; }
-
     }
 }

@@ -1,13 +1,9 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.General;
-using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.DTOs.Interfaces;
-using MoviesAPI_EFC.Entities;
 using MoviesAPI_EFC.Extensions;
 
 namespace MoviesAPI_EFC.Controllers
@@ -41,7 +37,12 @@ namespace MoviesAPI_EFC.Controllers
         protected async Task<ActionResult<List<TDTO>>> Get<TEntity, TDTO>(PaginationData paginationData) where TEntity: class
         {
             var entityQueryable = _applicationDbContext.Set<TEntity>().AsQueryable();
-            var paginatedItems = await entityQueryable.Paginate(paginationData).ToListAsync();
+            return Ok(Get<TEntity, TDTO>(paginationData, entityQueryable));
+        }
+
+        protected async Task<ActionResult<List<TDTO>>> Get<TEntity, TDTO>(PaginationData paginationData, IQueryable<TEntity> queryable) where TEntity : class
+        {
+            var paginatedItems = await queryable.Paginate(paginationData).ToListAsync();
             return Ok(_mapper.Map<List<TDTO>>(paginatedItems));
         }
 

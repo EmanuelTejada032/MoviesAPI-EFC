@@ -3,6 +3,7 @@ using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.Genres;
 using MoviesAPI_EFC.DTOs.Movies;
 using MoviesAPI_EFC.DTOs.MovieTheater;
+using MoviesAPI_EFC.DTOs.Review;
 using MoviesAPI_EFC.Entities;
 using NetTopologySuite.Geometries;
 
@@ -57,6 +58,13 @@ namespace MoviesAPI_EFC
                .ForMember(dest => dest.MoviesActors, opt => opt.MapFrom(MapMoviesActorsUpdate));
 
             CreateMap<MoviePatchDTO, Movie>().ReverseMap();
+
+
+            CreateMap<Review, ReviewListItemDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
+
+            CreateMap<ReviewCreateReqDTO, Review>();
+            CreateMap<ReviewUpdateReqDTO, Review>();
 
         }
 

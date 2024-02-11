@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Azure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,16 +34,11 @@ namespace MoviesAPI_EFC.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<List<ActorListItemResponseDTO>>> Get([FromQuery] PaginationData paginationData)
-        {
-            return await Get<Actor, ActorListItemResponseDTO>(paginationData);
-        }
+        public async Task<ActionResult<List<ActorListItemResponseDTO>>> Get([FromQuery] PaginationData paginationData) => await Get<Actor, ActorListItemResponseDTO>(paginationData);
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id)
-        {
-           return await Get<Actor, ActorListItemResponseDTO>(id);
-        }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id) => await Get<Actor, ActorListItemResponseDTO>(id);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] ActorCreateReqDTO actorCreateReqDTO)
@@ -117,10 +114,7 @@ namespace MoviesAPI_EFC.Controllers
         }
 
         [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Patch(int id , [FromBody] JsonPatchDocument<ActorPatchDTO> actorPatchData )
-        {
-           return  await Patch<Actor, ActorPatchDTO>(id, actorPatchData);
-        }
+        public async Task<IActionResult> Patch(int id , [FromBody] JsonPatchDocument<ActorPatchDTO> actorPatchData ) => await Patch<Actor, ActorPatchDTO>(id, actorPatchData);
 
 
     }
