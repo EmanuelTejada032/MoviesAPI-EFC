@@ -9,9 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MoviesAPI_EFC.DTOs.Actors;
 using MoviesAPI_EFC.DTOs.General;
 using MoviesAPI_EFC.Entities;
-using MoviesAPI_EFC.Extensions;
 using MoviesAPI_EFC.Services.Contract;
-using System.Runtime.CompilerServices;
 
 namespace MoviesAPI_EFC.Controllers
 {
@@ -38,7 +36,23 @@ namespace MoviesAPI_EFC.Controllers
 
         [HttpGet("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
-        public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id) => await Get<Actor, ActorListItemResponseDTO>(id);
+        public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id)
+        {
+            try
+            {
+                ActorListItemResponseDTO actor = await _moviesDbContext.Actors.Where(x => x.Id == id).ProjectTo<ActorListItemResponseDTO>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+                var name = actor.Name;
+                return actor;
+            }catch(Exception e)
+            {
+                throw;
+            }
+        }
+
+        //Commented this to test customexceptionfilter easier 
+        //[HttpGet("{id:int}")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        //public async Task<ActionResult<ActorListItemResponseDTO>> GetById(int id) => await Get<Actor, ActorListItemResponseDTO>(id);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] ActorCreateReqDTO actorCreateReqDTO)

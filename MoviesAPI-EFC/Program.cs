@@ -1,10 +1,13 @@
 using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoviesAPI_EFC;
+using MoviesAPI_EFC.Filters;
 using MoviesAPI_EFC.Helpers;
+using MoviesAPI_EFC.Middleware;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
 using NetTopologySuite;
@@ -16,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers(options => options.Filters.Add(typeof(CustomExceptionFilter))).AddNewtonsoftJson();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"),
@@ -26,6 +29,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid:4326));
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddScoped<MovieExistAttribute>();
+builder.Services.AddScoped<IRecurrentService, RecurrentService>();
 
 builder.Services.AddSingleton(provider =>
 {
@@ -38,6 +42,14 @@ builder.Services.AddSingleton(provider =>
     return mConfig.CreateMapper();
 });
 
+
+builder.Services.AddHangfire(configuration => configuration
+          .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseSqlServerStorage(builder.Configuration.GetConnectionString("defaultConnection")));
+
+builder.Services.AddHangfireServer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
@@ -65,11 +77,24 @@ builder.Services.AddTransient<IFileManager, FileManagerService>();
 
 var app = builder.Build();
 
+#region Set Service Provider to Custom Logger
+CustomLogger.SetServiceProvider(app.Services);
+#endregion
+
+
+
 // Configure the HTTP request pipeline.
+app.UseHangfireServer();
+RecurringJob.AddOrUpdate<IRecurrentService>("RecurrentService", x => x.Recurrent(), Cron.Minutely());
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
+
 
 app.MapControllers();
 

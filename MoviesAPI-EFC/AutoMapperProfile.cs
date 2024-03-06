@@ -5,6 +5,7 @@ using MoviesAPI_EFC.DTOs.Movies;
 using MoviesAPI_EFC.DTOs.MovieTheater;
 using MoviesAPI_EFC.DTOs.Review;
 using MoviesAPI_EFC.Entities;
+using MoviesAPI_EFC.Filters;
 using NetTopologySuite.Geometries;
 
 namespace MoviesAPI_EFC
@@ -65,6 +66,8 @@ namespace MoviesAPI_EFC
 
             CreateMap<ReviewCreateReqDTO, Review>();
             CreateMap<ReviewUpdateReqDTO, Review>();
+
+            CreateMap<CustomExceptionFilterLogDTO, CustomExceptionFilterLog>();
 
         }
 

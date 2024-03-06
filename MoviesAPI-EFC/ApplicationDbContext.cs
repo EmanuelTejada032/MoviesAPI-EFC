@@ -28,5 +28,6 @@ namespace MoviesAPI_EFC
         public DbSet<MovieTheater> MovieTheaters{ get; set; }
         public DbSet<MovieTheaterMovie> MovieTheaterMovies{ get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<CustomExceptionFilterLog> CustomExceptionFilterLogs { get; set; }
     }
 }
