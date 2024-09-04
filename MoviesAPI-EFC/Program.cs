@@ -8,6 +8,7 @@ using MoviesAPI_EFC;
 using MoviesAPI_EFC.Filters;
 using MoviesAPI_EFC.Helpers;
 using MoviesAPI_EFC.Middleware;
+using MoviesAPI_EFC.Services;
 using MoviesAPI_EFC.Services.Contract;
 using MoviesAPI_EFC.Services.Implementation;
 using NetTopologySuite;
@@ -30,6 +31,7 @@ builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.Crea
 builder.Services.AddSingleton<HashService>();
 builder.Services.AddScoped<MovieExistAttribute>();
 builder.Services.AddScoped<IRecurrentService, RecurrentService>();
+builder.Services.AddHostedService<WorkerService>();
 
 builder.Services.AddSingleton(provider =>
 {
@@ -43,13 +45,13 @@ builder.Services.AddSingleton(provider =>
 });
 
 
-builder.Services.AddHangfire(configuration => configuration
-          .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-          .UseSimpleAssemblyNameTypeSerializer()
-          .UseRecommendedSerializerSettings()
-          .UseSqlServerStorage(builder.Configuration.GetConnectionString("defaultConnection")));
+//builder.Services.AddHangfire(configuration => configuration
+//          .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+//          .UseSimpleAssemblyNameTypeSerializer()
+//          .UseRecommendedSerializerSettings()
+//          .UseSqlServerStorage(builder.Configuration.GetConnectionString("defaultConnection")));
 
-builder.Services.AddHangfireServer();
+//builder.Services.AddHangfireServer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
@@ -84,8 +86,7 @@ CustomLogger.SetServiceProvider(app.Services);
 
 
 // Configure the HTTP request pipeline.
-app.UseHangfireServer();
-RecurringJob.AddOrUpdate<IRecurrentService>("RecurrentService", x => x.Recurrent(), Cron.Minutely());
+//app.UseHangfireServer();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -93,7 +94,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseHangfireDashboard();
+//app.UseHangfireDashboard();
 
 
 app.MapControllers();
