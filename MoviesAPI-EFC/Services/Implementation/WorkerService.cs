@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MoviesAPI_EFC.Services.Contract;
-using MoviesAPI_EFC.Services.Implementation;
-using System.Threading;
-
-namespace MoviesAPI_EFC.Services
+﻿namespace MoviesAPI_EFC.Services
 {
     public class WorkerService : BackgroundService
     {
